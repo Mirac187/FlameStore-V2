@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function signed(){return request.auth != null;}
+  function me(){return signed() ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data : {};}
+  function dev(){return signed() && me().role == 'DEVELOPER';}
+  function staff(){return signed() && (me().role == 'DEVELOPER' || me().role == 'MODERATOR' || me().role == 'GUIDE');}
+  function sameOwner(){return signed() && request.resource.data.uid == request.auth.uid;}
+  match /users/{uid} {
+    allow read: if signed() && (request.auth.uid == uid || dev());
+    allow create: if signed() && request.auth.uid == uid && request.resource.data.uid == uid;
+    allow update: if signed() && request.auth.uid == uid
+      && request.resource.data.uid == resource.data.uid
+      && request.resource.data.email == resource.data.email
+      && request.resource.data.role == resource.data.role
+      && request.resource.data.xp == resource.data.xp
+      && request.resource.data.level == resource.data.level
+      && (resource.data.email != 'mustafamirac000@gmail.com' || request.resource.data.displayName == 'Mavi');
+    allow update, delete: if dev();
+  }
+  match /users/{uid}/storageLinks/{id} {allow read,create,update,delete: if signed() && request.auth.uid == uid;}
+  match /apps/{id} {
+    allow read: if signed();
+    allow create: if false; // Only scanAndPublish Cloud Function creates apps.
+    allow update: if staff() || (signed() && resource.data.uid == request.auth.uid);
+    allow delete: if staff() || (signed() && resource.data.uid == request.auth.uid);
+  }
+  match /posts/{id} {
+    allow read: if signed(); allow create: if signed() && request.resource.data.uid == request.auth.uid;
+    allow update: if signed() && resource.data.uid == request.auth.uid; allow delete: if staff() || (signed() && resource.data.uid == request.auth.uid);
+    match /comments/{cid} {allow read,create: if signed(); allow delete: if staff() || (signed() && resource.data.uid == request.auth.uid);}
+  }
+  match /chat/{id} {allow read,create: if signed() && request.resource.data.uid == request.auth.uid; allow delete: if staff() || (signed() && resource.data.uid == request.auth.uid);}
+  match /clans/{id} {allow read: if signed(); allow create: if signed() && request.resource.data.ownerId == request.auth.uid; allow update,delete: if staff() || (signed() && resource.data.ownerId == request.auth.uid);}
+  match /clans/{id}/messages/{mid} {allow read,create: if signed(); allow delete: if staff();}
+  match /clanInvites/{id} {allow create: if signed() && request.resource.data.fromUid == request.auth.uid; allow read: if signed() && (resource.data.toUid == request.auth.uid || resource.data.fromUid == request.auth.uid); allow update: if signed() && resource.data.toUid == request.auth.uid;}
+  match /reports/{id} {allow create: if signed() && request.resource.data.reporterUid == request.auth.uid; allow read,update,delete: if staff();}
+  match /xpEvents/{id} {allow create: if signed() && request.resource.data.uid == request.auth.uid; allow read: if staff();}
+  match /moderationActions/{id} {allow read: if staff(); allow create: if false;}
+  match /notifications/{id} {allow read: if signed() && resource.data.uid == request.auth.uid; allow create: if staff(); allow update: if signed() && resource.data.uid == request.auth.uid;}
+  match /announcements/{id} {allow read: if signed(); allow write: if dev();}
+  match /apps/{id}/ratings/{uid} { allow read: if signed(); allow write: if false; }
+ }
+}
