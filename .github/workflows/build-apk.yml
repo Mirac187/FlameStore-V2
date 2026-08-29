@@ -60,22 +60,41 @@ jobs:
         mv style.css src/ 2>/dev/null || true
         touch src/style.css
         
-        # index.html yolunu ve Vite base ayarını yapalım
-        if [ -f "index.html" ]; then
-          sed -i 's|src=".*main.js"|src="/src/main.js"|g' index.html || true
-          sed -i 's|src=\x27.*main.js\x27|src="/src/main.js"|g' index.html || true
-        fi
-        
+        # Vite config içine güvenli bir şekilde base: './' ekleyelim (Siyah ekranı önler)
         if [ -f "vite.config.js" ]; then
-          sed -i "s/export default defineConfig({/export default defineConfig({ base: '.\/',/g" vite.config.js || true
+          node -e "
+            const fs = require('fs');
+            let content = fs.readFileSync('vite.config.js', 'utf8');
+            if (!content.includes('base:')) {
+              content = content.replace('defineConfig({', \"defineConfig({ base: './',\");
+              fs.writeFileSync('vite.config.js', content);
+            }
+          " || true
         fi
 
         npm run build
 
-    - name: Capacitor Android Ekle ve Senkronize Et
+    - name: Capacitor Android Ekle ve Simgeyi Enjekte Et
       run: |
         npx cap add android || true
         npx cap sync android
+        
+        # Eğer deponda icon.png varsa Android res klasörlerine otomatik kopyalayalım
+        if [ -f "icon.png" ]; then
+          cp icon.png android/app/src/main/res/drawable/ic_launcher.png || true
+          cp icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png || true
+          cp icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png || true
+          cp icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png || true
+          cp icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png || true
+          cp icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png || true
+        elif [ -f "logo.png" ]; then
+          cp logo.png android/app/src/main/res/drawable/ic_launcher.png || true
+          cp logo.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png || true
+          cp logo.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png || true
+          cp logo.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png || true
+          cp logo.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png || true
+          cp logo.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png || true
+        fi
 
     - name: APK Derle
       run: |
