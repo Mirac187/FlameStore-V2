@@ -1,4 +1,4 @@
-name: Vue Capacitor APK Build
+name: FlameStore APK Build
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
     - name: Depoyu Kopyala
       uses: actions/checkout@v4
 
-    - name: Java Kur (Android Gradle için zorunlu)
+    - name: Java Kur
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
@@ -26,21 +26,26 @@ jobs:
     - name: Bağımlılıkları Yükle
       run: npm install
 
-    - name: Vue Projesini Derle (Vite)
-      run: npm run build
+    - name: Vite Base Yolunu Düzelt ve Derle
+      run: |
+        # Vite config dosyasına base ekleyerek yol hatalarını önleyelim
+        if [ -f "vite.config.js" ]; then
+          sed -i "s/export default defineConfig({/export default defineConfig({ base: '.\/',/g" vite.config.js || true
+        fi
+        npm run build
 
-    - name: Capacitor Android Senkronize Et
+    - name: Capacitor Android Ekle
       run: |
         npx cap add android || true
         npx cap sync android
 
-    - name: Android APK Oluştur (Debug)
+    - name: APK Derle
       run: |
         cd android
         ./gradlew assembleDebug
 
-    - name: APK Dosyasını Kaydet (Artifact)
+    - name: APK Dosyasını Kaydet
       uses: actions/upload-artifact@v4
       with:
-        name: FlameStore-Debug-APK
+        name: FlameStore-APK
         path: android/app/build/outputs/apk/debug/app-debug.apk
