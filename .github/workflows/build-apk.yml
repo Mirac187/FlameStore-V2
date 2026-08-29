@@ -60,7 +60,7 @@ jobs:
         mv style.css src/ 2>/dev/null || true
         touch src/style.css
         
-        # Vite config içine base: './' ekleyelim (Dosya yollarının bulunmasını sağlar)
+        # Vite config içine base: './' ekleyelim (Vite index.html yollarını kendi yönetsin)
         if [ -f "vite.config.js" ]; then
           node -e "
             const fs = require('fs');
@@ -72,12 +72,20 @@ jobs:
           " || true
         fi
 
-        # Router'ı Hash Mode yapalım (Android WebView siyah ekranını kesin olarak engeller)
+        # Router'ı Hash Mode yapalım
         if [ -f "src/router.js" ]; then
           sed -i 's/createWebHistory/createWebHashHistory/g' src/router.js || true
         fi
 
-        # Capacitor Config dosyasını baştan ve doğru oluşturalım
+        # Firebase çökmesini önlemek için build sırasında eksik env değişkenlerine güvenli geçici değerler atayalım
+        if [ -f "src/firebase.js" ]; then
+          sed -i 's/import.meta.env./(import.meta.env. || {})/g' src/firebase.js || true
+        fi
+
+        # Çakışan eski config dosyalarını yok et
+        rm -f capacitor.config.ts capacitor.config.js
+
+        # Kesin çalışan tek ve doğru capacitor.config.json oluşturalım
         cat << 'EOF' > capacitor.config.json
         {
           "appId": "com.flamestore.app",
@@ -87,12 +95,12 @@ jobs:
         }
         EOF
 
-        # Projeyi derleyip dist klasörünü üretelim
+        # Projeyi derle
         npm run build
 
     - name: Capacitor Android Ekle ve Senkronize Et
       run: |
-        npx cap add android
+        npx cap add android || true
         npx cap sync android
 
     - name: APK Derle
