@@ -23,8 +23,10 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Bağımlılıkları Yükle
-      run: npm install
+    - name: Bağımlılıkları Yükle ve Android Paketini Ekle
+      run: |
+        npm install
+        npm install @capacitor/android --save
 
     - name: Otomatik Dosya Düzenle ve Derle
       run: |
@@ -70,9 +72,9 @@ jobs:
 
         npm run build
 
-    - name: Capacitor Android Ekle
+    - name: Capacitor Android Ekle ve Senkronize Et
       run: |
-        npx cap add android || true
+        npx cap add android
         npx cap sync android
 
     - name: APK Derle
