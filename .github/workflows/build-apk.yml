@@ -12,21 +12,21 @@ jobs:
     - name: Depoyu Kopyala
       uses: actions/checkout@v4
 
-    - name: Java Kur (Java 21)
+    - name: Java Kur (Java 17)
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '21'
+        java-version: '17'
 
     - name: Node.js Kur
       uses: actions/setup-node@v4
       with:
         node-version: '20'
 
-    - name: Bağımlılıkları Yükle ve Android Paketini Ekle
+    - name: Bağımlılıkları Yükle ve Capacitor 5 Ekle
       run: |
         npm install
-        npm install @capacitor/android --save
+        npm install @capacitor/android@5 --save
 
     - name: Otomatik Dosya Düzenle ve Derle
       run: |
@@ -72,14 +72,10 @@ jobs:
 
         npm run build
 
-    - name: Capacitor Android Ekle ve Gradle Güncelle
+    - name: Capacitor Android Ekle ve Senkronize Et
       run: |
         npx cap add android || true
         npx cap sync android
-        cd android
-        # Gradle sürümünü Java 21 uyumlu 8.5'e yükseltelim
-        ./gradlew wrapper --gradle-version 8.5
-        cd ..
 
     - name: APK Derle
       run: |
