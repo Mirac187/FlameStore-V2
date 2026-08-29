@@ -1,0 +1,26 @@
+name: Magaza APK Derle
+
+on:
+  push:
+    branches: [ "main" ] # veya master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Depoyu Kopyala
+      uses: actions/checkout@v4
+
+    - name: Node.js Kurulumu
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Paketleri Yükle (Hatasız npm install)
+      run: npm install
+
+    - name: APK Derle / Paketle
+      run: |
+        echo "Node.js başarıyla kuruldu ve paketler yüklendi!"
+        # Uygulamanın derleme komutu buraya gelecek (Örn: npx cap build android)
