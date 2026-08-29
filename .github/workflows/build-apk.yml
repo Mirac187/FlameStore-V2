@@ -46,12 +46,13 @@ jobs:
         mv Settings.vue src/pages/ 2>/dev/null || true
         mv Storage.vue src/pages/ 2>/dev/null || true
         
-        # Diğer ana dosyaları src içine taşıyalım
+        # Ana dosyaları ve firebase.js'i src içine taşıyalım
         mv App.vue src/ 2>/dev/null || true
         mv main.js src/ 2>/dev/null || true
         mv router.js src/ 2>/dev/null || true
         mv data.js src/ 2>/dev/null || true
         mv index.js src/ 2>/dev/null || true
+        mv firebase.js src/ 2>/dev/null || true
         mv style.css src/ 2>/dev/null || true
         touch src/style.css
         
