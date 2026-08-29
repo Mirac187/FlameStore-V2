@@ -1,8 +1,8 @@
-name: Magaza APK Derle
+name: Vue Capacitor APK Build
 
 on:
   push:
-    branches: [ "main" ] # veya master
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -12,15 +12,35 @@ jobs:
     - name: Depoyu Kopyala
       uses: actions/checkout@v4
 
-    - name: Node.js Kurulumu
+    - name: Java Kur (Android Gradle için zorunlu)
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Node.js Kur
       uses: actions/setup-node@v4
       with:
         node-version: '20'
 
-    - name: Paketleri Yükle (Hatasız npm install)
+    - name: Bağımlılıkları Yükle
       run: npm install
 
-    - name: APK Derle / Paketle
+    - name: Vue Projesini Derle (Vite)
+      run: npm run build
+
+    - name: Capacitor Android Senkronize Et
       run: |
-        echo "Node.js başarıyla kuruldu ve paketler yüklendi!"
-        # Uygulamanın derleme komutu buraya gelecek (Örn: npx cap build android)
+        npx cap add android || true
+        npx cap sync android
+
+    - name: Android APK Oluştur (Debug)
+      run: |
+        cd android
+        ./gradlew assembleDebug
+
+    - name: APK Dosyasını Kaydet (Artifact)
+      uses: actions/upload-artifact@v4
+      with:
+        name: FlameStore-Debug-APK
+        path: android/app/build/outputs/apk/debug/app-debug.apk
