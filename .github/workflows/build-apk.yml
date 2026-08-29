@@ -26,22 +26,19 @@ jobs:
     - name: Bağımlılıkları Yükle
       run: npm install
 
-        - name: Vite Base Yolunu Düzelt ve Derle
+    - name: Vite Base Yolunu Düzelt ve Derle
       run: |
-        # index.html içindeki mutlak yolları göreceli hale getirelim
         if [ -f "index.html" ]; then
           sed -i 's|="/src/|="./src/|g' index.html || true
           sed -i 's|="/assets/|="./assets/|g' index.html || true
           sed -i 's|src="/|src="./|g' index.html || true
         fi
         
-        # Vite config için base ayarını ekleyelim
         if [ -f "vite.config.js" ]; then
           sed -i "s/export default defineConfig({/export default defineConfig({ base: '.\/',/g" vite.config.js || true
         fi
         
         npm run build
-
 
     - name: Capacitor Android Ekle
       run: |
