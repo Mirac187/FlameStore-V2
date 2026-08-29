@@ -28,8 +28,8 @@ jobs:
 
     - name: Otomatik Dosya Düzenle ve Derle
       run: |
-        # Klasörleri oluşturalım
-        mkdir -p src/pages
+        # Klasör yapısını oluşturalım
+        mkdir -p src/pages src/services
         
         # .vue dosyalarını pages klasörüne taşıyalım
         mv Home.vue src/pages/ 2>/dev/null || true
@@ -46,11 +46,13 @@ jobs:
         mv Settings.vue src/pages/ 2>/dev/null || true
         mv Storage.vue src/pages/ 2>/dev/null || true
         
-        # Ana dosyaları ve firebase.js'i src içine taşıyalım
+        # data.js dosyasını services klasörüne taşıyalım
+        mv data.js src/services/ 2>/dev/null || true
+        
+        # Diğer ana dosyaları src içine taşıyalım
         mv App.vue src/ 2>/dev/null || true
         mv main.js src/ 2>/dev/null || true
         mv router.js src/ 2>/dev/null || true
-        mv data.js src/ 2>/dev/null || true
         mv index.js src/ 2>/dev/null || true
         mv firebase.js src/ 2>/dev/null || true
         mv style.css src/ 2>/dev/null || true
