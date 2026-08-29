@@ -28,7 +28,7 @@ jobs:
         npm install
         npm install @capacitor/android@5 --save
 
-    - name: Otomatik Dosya Düzenle ve Derle
+    - name: Proje Yapılandırması ve Derleme
       run: |
         # Klasör yapısını oluşturalım
         mkdir -p src/pages src/services
@@ -60,7 +60,7 @@ jobs:
         mv style.css src/ 2>/dev/null || true
         touch src/style.css
         
-        # Vite config içine base: './' ekleyelim
+        # Vite config içine base: './' ekleyelim (Dosya yollarının bulunmasını sağlar)
         if [ -f "vite.config.js" ]; then
           node -e "
             const fs = require('fs');
@@ -72,13 +72,12 @@ jobs:
           " || true
         fi
 
-        # Siyah ekranı çözen sihirli dokunuş: Router'ı Hash Mode yapalım
+        # Router'ı Hash Mode yapalım (Android WebView siyah ekranını kesin olarak engeller)
         if [ -f "src/router.js" ]; then
           sed -i 's/createWebHistory/createWebHashHistory/g' src/router.js || true
-          sed -i 's/createWebWebHistory/createWebHashHistory/g' src/router.js || true
         fi
 
-        # Kesin çalışan capacitor.config.json oluşturalım
+        # Capacitor Config dosyasını baştan ve doğru oluşturalım
         cat << 'EOF' > capacitor.config.json
         {
           "appId": "com.flamestore.app",
@@ -88,12 +87,12 @@ jobs:
         }
         EOF
 
-        # Projeyi derle
+        # Projeyi derleyip dist klasörünü üretelim
         npm run build
 
     - name: Capacitor Android Ekle ve Senkronize Et
       run: |
-        npx cap add android || true
+        npx cap add android
         npx cap sync android
 
     - name: APK Derle
