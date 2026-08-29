@@ -26,19 +26,20 @@ jobs:
     - name: Bağımlılıkları Yükle
       run: npm install
 
-    -     - name: Vite Base Yolunu Düzelt ve Derle
+    - name: Otomatik Yol Düzelt ve Derle
       run: |
+        # index.html içindeki bozuk yolları otomatik onaralım
         if [ -f "index.html" ]; then
-          sed -i 's|/src/main.js|./main.js|g' index.html || true
           sed -i 's|="/src/|="./|g' index.html || true
+          sed -i 's|src="/src/|src="./|g' index.html || true
+          sed -i 's|src="src/|src="./|g' index.html || true
         fi
         
         if [ -f "vite.config.js" ]; then
           sed -i "s/export default defineConfig({/export default defineConfig({ base: '.\/',/g" vite.config.js || true
         fi
-        
-        npm run build
 
+        npm run build
 
     - name: Capacitor Android Ekle
       run: |
@@ -50,7 +51,7 @@ jobs:
         cd android
         ./gradlew assembleDebug
 
-    - name: APK Dosyasını Kaydet
+    - name: APK Kaydet
       uses: actions/upload-artifact@v4
       with:
         name: FlameStore-APK
