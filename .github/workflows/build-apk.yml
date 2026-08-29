@@ -12,11 +12,11 @@ jobs:
     - name: Depoyu Kopyala
       uses: actions/checkout@v4
 
-    - name: Java Kur (Java 21)
+    - name: Java Kur (Java 17)
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '21'
+        java-version: '17'
 
     - name: Node.js Kur
       uses: actions/setup-node@v4
@@ -72,10 +72,13 @@ jobs:
 
         npm run build
 
-    - name: Capacitor Android Ekle ve Senkronize Et
+    - name: Capacitor Android Ekle ve Uyarla
       run: |
-        npx cap add android
+        npx cap add android || true
         npx cap sync android
+        # Gradle uyumsuzluğunu önlemek için Java versiyonunu 17'ye sabitleyelim
+        find android -name "build.gradle" -exec sed -i 's/VERSION_21/VERSION_17/g' {} + || true
+        find android -name "build.gradle" -exec sed -i 's/targetCompatibility JavaVersion.VERSION_11/targetCompatibility JavaVersion.VERSION_17/g' {} + || true
 
     - name: APK Derle
       run: |
