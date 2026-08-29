@@ -28,32 +28,43 @@ jobs:
 
     - name: Otomatik Dosya Düzenle ve Derle
       run: |
-        # 1. src klasörü yoksa oluştur
-        mkdir -p src
+        # Klasörleri oluşturalım
+        mkdir -p src/pages
         
-        # 2. Dağınık duran tüm dosyaları otomatik olarak src içine taşı
-        mv *.vue src/ 2>/dev/null || true
+        # .vue dosyalarını pages klasörüne taşıyalım
+        mv Home.vue src/pages/ 2>/dev/null || true
+        mv Apps.vue src/pages/ 2>/dev/null || true
+        mv Chat.vue src/pages/ 2>/dev/null || true
+        mv Clans.vue src/pages/ 2>/dev/null || true
+        mv Community.vue src/pages/ 2>/dev/null || true
+        mv Developer.vue src/pages/ 2>/dev/null || true
+        mv Inbox.vue src/pages/ 2>/dev/null || true
+        mv Moderation.vue src/pages/ 2>/dev/null || true
+        mv Profile.vue src/pages/ 2>/dev/null || true
+        mv Publish.vue src/pages/ 2>/dev/null || true
+        mv Rules.vue src/pages/ 2>/dev/null || true
+        mv Settings.vue src/pages/ 2>/dev/null || true
+        mv Storage.vue src/pages/ 2>/dev/null || true
+        
+        # Diğer ana dosyaları src içine taşıyalım
+        mv App.vue src/ 2>/dev/null || true
         mv main.js src/ 2>/dev/null || true
         mv router.js src/ 2>/dev/null || true
         mv data.js src/ 2>/dev/null || true
         mv index.js src/ 2>/dev/null || true
         mv style.css src/ 2>/dev/null || true
-        
-        # 3. Eğer style.css yoksa bile hata vermemesi için boş bir tane oluşturalım
         touch src/style.css
         
-        # 4. index.html içindeki script yolunu /src/main.js yap
+        # index.html yolunu ve Vite base ayarını yapalım
         if [ -f "index.html" ]; then
           sed -i 's|src=".*main.js"|src="/src/main.js"|g' index.html || true
           sed -i 's|src=\x27.*main.js\x27|src="/src/main.js"|g' index.html || true
         fi
         
-        # 5. Vite base ayarını ekle
         if [ -f "vite.config.js" ]; then
           sed -i "s/export default defineConfig({/export default defineConfig({ base: '.\/',/g" vite.config.js || true
         fi
 
-        # 6. Projeyi derle
         npm run build
 
     - name: Capacitor Android Ekle
@@ -71,4 +82,3 @@ jobs:
       with:
         name: FlameStore-APK
         path: android/app/build/outputs/apk/debug/app-debug.apk
-
